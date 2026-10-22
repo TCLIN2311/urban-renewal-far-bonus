@@ -123,6 +123,11 @@ table.bd tfoot td{font-weight:700;border-top:2px solid var(--line-strong);border
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(150px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--paper);padding:8px 16px;border-radius:4px;font-size:13.5px;z-index:30}
 .foot{font-size:12.5px;color:var(--muted);line-height:1.7}
 #a4host{position:fixed;left:-10000px;top:0}
+body:not(.is-tp) .tp-only{display:none!important}
+.checks{display:flex;flex-direction:column;gap:6px}
+.checks label{display:flex;gap:8px;align-items:flex-start;font-size:13.5px;cursor:pointer}
+.checks input{margin-top:4px;accent-color:var(--accent);flex:none}
+.checks label.disabled{opacity:.45}
 @media (prefers-reduced-motion:reduce){.meter i{transition:none}}
 </style>
 
@@ -133,9 +138,13 @@ table.bd tfoot td{font-weight:700;border-top:2px solid var(--line-strong);border
       <div class="law" style="margin-top:6px">
         <span class="tag">都市更新建築容積獎勵辦法 114.01.13</span>
         <span class="tag">都市更新條例 §65 113.11.13</span>
-        <span class="tag">中央版</span>
+        <span class="tag tp-only">臺北市都市更新建築容積獎勵辦法 112.09.18</span>
         <span class="tag sample" id="sampleTag">範例案件，非實際資料</span>
       </div>
+    </div>
+    <div class="opts" role="radiogroup" aria-label="適用縣市" id="juris">
+      <label class="opt"><input type="radio" name="juris" id="jur-central" value="central">中央（各縣市通用）</label>
+      <label class="opt"><input type="radio" name="juris" id="jur-taipei" value="taipei">臺北市</label>
     </div>
   </header>
 
@@ -160,7 +169,9 @@ table.bd tfoot td{font-weight:700;border-top:2px solid var(--line-strong);border
       <div class="field"><label for="pZone">更新地區</label>
         <select id="pZone"><option value="designated">劃定應實施更新之地區</option><option value="not">未經劃定（自行劃定更新單元）</option></select></div>
       <div class="field"><label for="pDate">事業計畫報核日（預計）</label><input type="date" id="pDate"></div>
-      <div class="field"><label for="pLv">基地公告土地現值（元/㎡）</label><input type="number" id="pLv" min="0" step="1"><small>§8 協闢公設、§18 保證金試算用</small></div>
+      <div class="field"><label for="pLv">基地公告土地現值（元/㎡）</label><input type="number" id="pLv" min="0" step="1"><small>§8 協闢公設、§18 保證金、北市促進都更（一）試算用</small></div>
+      <div class="field tp-only"><label for="pUse">使用分區</label>
+        <select id="pUse"><option value="res">住宅區</option><option value="com">商業區</option><option value="other">其他分區</option></select><small>臺北市規劃設計（一）判定用</small></div>
     </div>
     <div class="derived">
       <span>基準容積 <b id="dBase">–</b> ㎡</span>
@@ -179,12 +190,21 @@ table.bd tfoot td{font-weight:700;border-top:2px solid var(--line-strong);border
     <div id="rows"></div>
   </section>
 
+  <section class="panel tp-only">
+    <div class="panel-head"><h2>臺北市自治獎勵</h2><span class="muted" style="font-size:12.5px" id="tpHead">臺北市都市更新建築容積獎勵辦法附表｜合計上限基準容積 20%（§65 第6項）</span></div>
+    <div class="row" id="row-zz">
+      <div><div class="art">北市辦法 §3</div><div class="rt">整建住宅更新單元</div><p class="cond">整建住宅更新單元經市府核定後，得逕依自治獎勵上限（基準容積 20%）辦理重建，不適用附表各項。</p></div>
+      <div class="ctrl"><div class="opts"><label class="opt"><input type="checkbox" id="zz-on">適用 <span class="p">20%</span></label></div></div>
+    </div>
+    <div id="tpRows"></div>
+  </section>
+
   <section class="panel">
     <div class="panel-head"><h2>核計明細</h2><span class="muted" style="font-size:12.5px" id="bdNote"></span></div>
     <div class="tblwrap"><table class="bd" id="bd"></table></div>
   </section>
 
-  <p class="foot">本表依中央《都市更新建築容積獎勵辦法》（民國114年1月13日修正）及《都市更新條例》第65條整理，供初步評估。實際額度以直轄市、縣（市）主管機關審議核定為準。地方自治法規另訂之獎勵（§65 第6項，上限基準容積 0.2 倍）、容積移轉、依其他法令申請之獎勵（辦法 §4，重複者應扣除）未納入本表。內政部已提出《都市更新條例》修正草案（自主都更一次給滿 1.5 倍、捐贈社宅上限提高至 2 倍），完成立法前仍以現行規定為準。</p>
+  <p class="foot">本表依中央《都市更新建築容積獎勵辦法》（民國114年1月13日修正）、《都市更新條例》第65條，以及《臺北市都市更新建築容積獎勵辦法》（民國112年9月18日修正附表）整理，供初步評估。實際額度以主管機關審議核定為準。中央模式未計入地方自治法規獎勵；臺北市模式之自治獎勵合計以基準容積 20% 為限（策略性更新地區 40%）。容積移轉、依其他法令申請之獎勵（辦法 §4，重複者應扣除）、都市計畫另訂之獎勵（如防災型都更）未納入本表。內政部已提出《都市更新條例》修正草案（自主都更一次給滿 1.5 倍、捐贈社宅上限提高至 2 倍），完成立法前仍以現行規定為準。</p>
 </div>
 
 <div class="summary" role="region" aria-label="容積獎勵統計">
@@ -192,7 +212,7 @@ table.bd tfoot td{font-weight:700;border-top:2px solid var(--line-strong);border
     <div><div class="biglbl">獎勵合計（基準容積 %）</div><div class="big" id="sPct">0%</div></div>
     <div style="min-width:0">
       <div class="meter" aria-hidden="true"><i id="sBar" style="width:0"></i></div>
-      <div class="meta"><span>上限 <b id="sCapPct">50%</b></span><span>獎勵面積 <b id="sArea">0</b> ㎡</span><span id="sStatus"></span></div>
+      <div class="meta"><span>上限 <b id="sCapPct">50%</b></span><span class="tp-only" id="sSplit"></span><span>獎勵面積 <b id="sArea">0</b> ㎡</span><span id="sStatus"></span></div>
     </div>
     <div class="sumright"><span class="biglbl">核計後允建容積</span><b id="sTotal">–</b><span class="muted" id="sTotalPing"></span></div>
   </div>
@@ -256,9 +276,45 @@ const CAPMODES = [
   {id:"strategic", t:"策略性更新地區 ≥ 1 萬㎡", d:"須依§12第1項由主管機關或同意之機關（構）實施。≤ 2 倍基準容積，或 0.5 倍基準容積＋原容積，擇優（§65-2-3）"}
 ];
 
+/* ---------- 臺北市附表（112.09.18） ---------- */
+const TP_LAW = {name:"臺北市都市更新建築容積獎勵辦法", version:"112-09-18", versionLabel:"民國112年9月18日修正附表"};
+const TP_RULES = [
+  {id:"t1", art:"北市附表 一", title:"建築規劃設計（一）", type:"count",
+   conds:["面臨 8m 以下道路之一側退縮 2m 以上（自人行道及高度比檢討範圍外起算）",
+     "與鄰地境界線平均距離 3m 以上，最小淨距 2m 以上",
+     "留設寬 4m 以上公眾通道，最小淨寬 2.5m，兩端接道路或公共設施用地",
+     "集中留設開放空間廣場 200㎡ 以上，最小淨寬 8m、長寬比 ≤ 3（住宅區不得申請）",
+     "地面層挑高半戶外空間：梁下淨高 6m、面積 36㎡、最小淨寬 6m 以上（商業區應設於街角）",
+     "建築物斜對角距離平均 ≤ 45m，或以立面設計避免連續牆面"],
+   cond:"符合 3 項 1%、4 項 2%、5 項以上 3%。第 3–5 項規劃空間不得重疊；通道須超過法定留設，依法不得廢止或改道之現有巷道不得申請第 3 項。"},
+  {id:"t2", art:"北市附表 一", title:"建築規劃設計（二）雨水貯留", type:"toggle", pct:1,
+   cond:"設置雨水流出抑制設施，貯留量達「臺北市基地開發排入雨水下水道逕流量標準」法定貯留量 2 倍以上。"},
+  {id:"t3", art:"北市附表 一", title:"建築規劃設計（三）人行步道／騎樓", type:"calc",
+   fields:[["road","留設供人行走之地面道路面積（㎡）"],["arcade","留設騎樓面積（㎡）"]],
+   cond:"沿街留設連續供人行走之地面道路或騎樓，淨寬 2–6m，無遮簷部分採透水設計並由建築師簽證。地面道路依實際面積、騎樓依實際面積 1.8 倍給予獎勵（直接計為獎勵樓地板面積）。須超過法定留設，並先扣除停車彎、車道出入口、法定退縮等不計部分。"},
+  {id:"t4", art:"北市附表 一", title:"建築規劃設計（四）通案審議原則", type:"toggle", pct:3,
+   cond:"符合臺北市都市更新及爭議處理審議會歷次會議通案重要審議原則中建築設計類之全部原則。"},
+  {id:"t5", art:"北市附表 一", title:"建築規劃設計（五）立體綠化", type:"choice",
+   options:[["g16","綠覆率 1.6–未滿 1.8 倍",2],["g18","1.8–未滿 2 倍",3],["g20","2 倍以上",4]],
+   cond:"屋頂平台及立面垂直綠化，綠覆率依臺北市新建建築物綠化實施規則第 5 條計算，且屋頂與立面綠覆面積佔總綠覆面積 1/2 以上。綠化量不得重複計入綠建築指標；領得使照前須繳納維護費（公共基金之 20%）。"},
+  {id:"t6", art:"北市附表 一", title:"改善都市環境", type:"calc",
+   fields:[["n","協助整修騎樓或無遮簷人行道之建築物（棟）"]],
+   cond:"協助整修同一或毗鄰街廓之騎樓或無遮簷人行道，每棟給予基準容積 0.25%。須於事業計畫核定前取得全體所有權人同意自行維護管理文件，整修經費不得申請補助。"},
+  {id:"t7", art:"北市附表 二", title:"新技術之應用（充電車位）", type:"toggle", pct:1,
+   cond:"法定停車位外另設充電汽車及機車停車位，數量達法定停車位總數 3% 以上，產權計入共用部分並納入規約。"},
+  {id:"t8", art:"北市附表 三", title:"促進都市更新（一）捐助都更基金", type:"calc",
+   fields:[["amount","提供本市都市更新基金經費（元）"]],
+   cond:"獎勵容積＝提供經費 ÷（報核日當期基地平均公告土地現值 × 0.7）。事業計畫核定時與市府簽訂契約書，領得使照前完成提供經費。需於基地條件填公告現值。"},
+  {id:"t9", art:"北市附表 三", title:"促進都市更新（二）四五層老公寓", type:"calc",
+   fields:[["a4","符合條件之 4 層樓建物基地面積（㎡）"],["a5","符合條件之 5 層樓建物基地面積（㎡）"]],
+   cond:"更新單元內合法建築物屋齡 30 年以上、4 或 5 層樓，且無電梯或法定停車位低於戶數十分之七。4 層樓給予該建築基地基準容積 2%，5 層樓 4%。"}
+];
+
 /* ---------- 狀態 ---------- */
+function blankTP(){ return {zz:false,t1:[false,false,false,false,false,false],t2:false,t3:{road:"",arcade:""},t4:false,t5:"",t6:{n:""},t7:false,t8:{amount:""},t9:{a4:"",a5:""}}; }
 function blankState(){
-  return {project:{name:"",landArea:"",far:"",orig:"",zone:"not",reportDate:"",landValue:"",capMode:"general"},
+  return {juris:"central", tp:blankTP(),
+    project:{name:"",landArea:"",far:"",orig:"",zone:"not",reportDate:"",landValue:"",capMode:"general",use:"res"},
     sel:{a5:"",a5land:"",a6:"",a6land:"",a7:{on:false,floor:"",k:1},a8:{on:false,area:"",vp:""},a9:{on:false,heritage:"",keep:""},
       a10:"",a11:"",a12:"",a13:"",a14:false,a15:{block:false,scale:false},a16:false,a17:{on:false,area:""}}, sample:false};
 }
@@ -269,6 +325,8 @@ function sampleState(){
   Object.assign(s.sel,{a10:"gold",a11:"silver",a12:"l1",a13:"mark",a14:true,a16:false});
   s.sel.a15 = {block:true,scale:false};
   s.sel.a17 = {on:true,area:"180"};
+  s.project.use = "res";
+  s.tp = {...blankTP(), t1:[true,true,true,false,false,true], t2:true, t7:true, t9:{a4:"",a5:"620"}};
   return s;
 }
 let S;
@@ -278,6 +336,10 @@ function mergeState(x){ const b = blankState(); const out = {...b, ...x, project
   for(const k in b.sel){ const v = x.sel ? x.sel[k] : undefined; if(v===undefined) continue;
     out.sel[k] = (typeof b.sel[k]==="object") ? {...b.sel[k],...v} : v; }
   if(typeof out.sel.a5==="boolean") out.sel.a5 = out.sel.a5 ? "ten" : "";
+  const bt = blankTP(), xt = x.tp || {};
+  out.tp = {...bt, ...xt, t1: Array.isArray(xt.t1) ? bt.t1.map((v,i)=>!!xt.t1[i]) : bt.t1,
+    t3:{...bt.t3,...(xt.t3||{})}, t6:{...bt.t6,...(xt.t6||{})}, t8:{...bt.t8,...(xt.t8||{})}, t9:{...bt.t9,...(xt.t9||{})}};
+  out.juris = x.juris==="taipei" ? "taipei" : "central";
   return out; }
 function saveDraft(){ try{ localStorage.setItem("frb-draft", JSON.stringify(S)); }catch(e){} }
 
@@ -355,8 +417,11 @@ function compute(){
 
   if(chloride){ for(const k in items){ items[k].pct=0; items[k].area=0; } }
 
-  const sumPct = Object.values(items).reduce((s,i)=>s+i.pct,0);
-  const sumArea = B*sumPct/100;
+  const centralPct = Object.values(items).reduce((s,i)=>s+i.pct,0);
+  const centralArea = B*centralPct/100;
+  const tp = computeTP(B, FAR, LV, chloride);
+  const sumArea = centralArea + tp.area;
+  const sumPct = B ? sumArea/B*100 : 0;
   // caps (total floor area)
   let capTotal, capLabel, capWarn="";
   switch(P.capMode){
@@ -373,7 +438,38 @@ function compute(){
   // §18 bond
   const bondArea = ["a10","a11","a12","a13"].reduce((s,k)=>s+items[k].area,0);
   const bond = LV ? LV*0.7*bondArea : 0;
-  return {A,FAR,B,O,LV,items,sumPct,sumArea,capTotal,capLabel,capWarn,capBonusArea,capPct,allowed,over,bondArea,bond,chloride};
+  return {A,FAR,B,O,LV,items,centralPct,centralArea,tp,sumPct,sumArea,capTotal,capLabel,capWarn,capBonusArea,capPct,allowed,over,bondArea,bond,chloride};
+}
+
+function computeTP(B, FAR, LV, chloride){
+  const on = S.juris==="taipei";
+  const strategic = S.project.capMode==="strategic";
+  const T = S.tp, items = {};
+  const put = (id, area, choice, extra={}) => items[id] = {area, pct: B? area/B*100 : 0, choice, ...extra};
+  // t1
+  { const res = S.project.use==="res";
+    const cnt = T.t1.filter((v,i)=>v && !(res && i===3)).length;
+    const pct = cnt>=5?3 : cnt===4?2 : cnt===3?1 : 0;
+    put("t1", B*pct/100, cnt?`符合 ${cnt} 項`:"", {warn: res && T.t1[3] ? "住宅區不得申請第 4 項（開放空間廣場），已不計入" : (cnt && cnt<3 ? "未達 3 項，不給獎勵":"")}); }
+  put("t2", T.t2? B*0.01:0, T.t2?"申請 1%":"");
+  { const a = n(T.t3.road) + n(T.t3.arcade)*1.8;
+    put("t3", a, a?`地面道路 ${f2(n(T.t3.road))}㎡＋騎樓 ${f2(n(T.t3.arcade))}㎡×1.8`:""); }
+  put("t4", T.t4? B*0.03:0, T.t4?"申請 3%":"");
+  { const o = TP_RULES[4].options.find(o=>o[0]===T.t5); put("t5", o? B*o[2]/100:0, o?o[1]:""); }
+  { const c = Math.floor(n(T.t6.n)); put("t6", B*c*0.25/100, c?`${c} 棟 × 0.25%`:""); }
+  put("t7", T.t7? B*0.01:0, T.t7?"申請 1%":"");
+  { const amt = n(T.t8.amount); let a=0, warn="";
+    if(amt){ if(!LV) warn="請於基地條件填入基地公告土地現值"; else a = amt/(LV*0.7); }
+    put("t8", a, amt?`NT$ ${Math.round(amt).toLocaleString("zh-TW")}`:"", {warn}); }
+  { const a = (n(T.t9.a4)*0.02 + n(T.t9.a5)*0.04)*FAR/100;
+    put("t9", a, a?[n(T.t9.a4)?`4層 ${f2(n(T.t9.a4))}㎡×2%`:"", n(T.t9.a5)?`5層 ${f2(n(T.t9.a5))}㎡×4%`:""].filter(Boolean).join("＋")+"（以該基地基準容積計）":""); }
+  let raw = Object.values(items).reduce((s,i)=>s+i.area,0);
+  if(strategic) raw *= 2;               // 北市辦法 §4：策略性更新地區核予二倍
+  const cap = (strategic?0.4:0.2)*B;    // 條例 §65 第6項
+  let area = Math.min(raw, cap);
+  if(T.zz){ raw = 0.2*B; area = 0.2*B; }
+  if(!on || chloride){ area = 0; }
+  return {on, items, raw, cap, area, capped: on && !T.zz && raw>cap+1e-6, zz:T.zz, strategic};
 }
 
 /* ---------- 畫面 ---------- */
@@ -425,12 +521,48 @@ function onRowInput(e){
   }
   S.sample = false; update();
 }
-const PF = {pName:"name",pArea:"landArea",pFar:"far",pOrig:"orig",pZone:"zone",pDate:"reportDate",pLv:"landValue"};
+function renderTP(){
+  $("tpRows").innerHTML = TP_RULES.map(r=>{
+    let ctrl = "";
+    if(r.type==="count") ctrl = `<div class="checks">${r.conds.map((c,i)=>`<label id="${r.id}-l${i}"><input type="checkbox" id="${r.id}-c${i}"><span>${i+1}. ${c}</span></label>`).join("")}</div>`;
+    else if(r.type==="toggle") ctrl = `<div class="opts"><label class="opt"><input type="checkbox" id="${r.id}-on">申請 <span class="p">${r.pct}%</span></label></div>`;
+    else if(r.type==="choice") ctrl = `<div class="opts"><label class="opt"><input type="radio" name="${r.id}" value="" id="${r.id}-none">不申請</label>${r.options.map(o=>`<label class="opt"><input type="radio" name="${r.id}" value="${o[0]}" id="${r.id}-${o[0]}">${o[1]} <span class="p">${o[2]}%</span></label>`).join("")}</div>`;
+    else ctrl = `<div class="calc">${r.fields.map(fl=>`<div class="field"><label for="${r.id}-${fl[0]}">${fl[1]}</label><input type="number" min="0" step="any" id="${r.id}-${fl[0]}"></div>`).join("")}</div>`;
+    return `<div class="row" id="row-${r.id}"><div><div class="art">${r.art}</div><div class="rt">${r.title}</div><p class="cond">${r.cond}</p></div>
+      <div class="ctrl">${ctrl}<div class="note warn" id="${r.id}-warn" hidden></div>
+      <div class="res"><span class="muted" id="${r.id}-ch"></span><span><span class="v" id="${r.id}-pct">0%</span> <span class="muted num" id="${r.id}-area"></span></span></div></div></div>`;
+  }).join("");
+  const sec = $("tpRows").parentElement;
+  const h = e => {
+    const t = e.target; if(!t.id) return;
+    if(t.id==="zz-on"){ S.tp.zz = t.checked; }
+    else { const m = t.id.match(/^(t\d)-(.+)$/); if(!m) return; const [ ,id,key] = m; const r = TP_RULES.find(x=>x.id===id);
+      if(r.type==="count") S.tp.t1[+key.slice(1)] = t.checked;
+      else if(r.type==="toggle") S.tp[id] = t.checked;
+      else if(r.type==="choice") S.tp[id] = t.value;
+      else S.tp[id][key] = t.value; }
+    S.sample = false; update();
+  };
+  sec.addEventListener("change", h);
+  sec.addEventListener("input", e=>{ if(e.target.type==="number") h(e); });
+}
+function syncTP(){
+  $("zz-on").checked = !!S.tp.zz;
+  for(const r of TP_RULES){
+    if(r.type==="count") r.conds.forEach((c,i)=>$(`${r.id}-c${i}`).checked = !!S.tp.t1[i]);
+    else if(r.type==="toggle") $(`${r.id}-on`).checked = !!S.tp[r.id];
+    else if(r.type==="choice"){ const el = $(`${r.id}-${S.tp[r.id]||"none"}`); if(el) el.checked = true; }
+    else for(const fl of r.fields) $(`${r.id}-${fl[0]}`).value = S.tp[r.id][fl[0]] ?? "";
+  }
+}
+function setJuris(j){ S.juris = j; document.body.classList.toggle("is-tp", j==="taipei"); $("jur-"+j).checked = true; }
+const PF = {pName:"name",pUse:"use",pArea:"landArea",pFar:"far",pOrig:"orig",pZone:"zone",pDate:"reportDate",pLv:"landValue"};
 function bindProject(){
   for(const id in PF){ $(id).addEventListener("input", e=>{ S.project[PF[id]] = e.target.value; S.sample=false; update(); }); }
 }
 function syncInputs(){
   for(const id in PF) $(id).value = S.project[PF[id]] ?? "";
+  setJuris(S.juris); syncTP();
   const cm = $("cap-"+S.project.capMode); if(cm) cm.checked = true;
   for(const r of RULES){
     const v = S.sel[r.id];
@@ -468,6 +600,20 @@ function update(){
     const lab = document.querySelector(`#row-${id} label.opt[data-k="${k}"]`);
     if(lab) lab.classList.toggle("disabled", S.project.zone==="designated" || R.A>=500);
   }
+  // 臺北市
+  const TPr = R.tp;
+  for(const r of TP_RULES){
+    const it = TPr.items[r.id];
+    $(`${r.id}-pct`).textContent = fp(it.pct);
+    $(`${r.id}-area`).textContent = it.area ? f2(it.area)+" ㎡" : "";
+    $(`${r.id}-ch`).textContent = TPr.zz ? "整宅單元，不適用" : (it.choice || "未申請");
+    $(`row-${r.id}`).classList.toggle("on", it.area>0 && !TPr.zz);
+    const we = $(`${r.id}-warn`); we.hidden = !it.warn; we.textContent = it.warn || "";
+  }
+  $("row-zz").classList.toggle("on", TPr.zz);
+  $("t1-l3").classList.toggle("disabled", S.project.use==="res");
+  $("tpHead").textContent = `臺北市都市更新建築容積獎勵辦法附表（112.09.18）｜合計上限基準容積 ${TPr.strategic?"40%（策略性更新地區，額度核予二倍）":"20%"}（條例 §65 第6項）`;
+  $("sSplit").textContent = `中央 ${fp(R.centralPct)}｜北市 ${fp(R.B? TPr.area/R.B*100:0)}／${TPr.strategic?40:20}%` + (TPr.capped?"（已達上限）":"");
   // summary
   $("sPct").textContent = fp(R.sumPct);
   $("sPct").classList.toggle("over", R.over);
@@ -486,8 +632,19 @@ function update(){
   renderBreakdown();
 }
 function breakdownRows(){
-  return RULES.filter(r=>R.items[r.id].pct>0).map(r=>({art:r.art,title:r.title,choice:R.items[r.id].choice,pct:R.items[r.id].pct,area:R.items[r.id].area}));
+  const rows = RULES.filter(r=>R.items[r.id].pct>0).map(r=>({art:r.art,title:r.title,choice:R.items[r.id].choice,pct:R.items[r.id].pct,area:R.items[r.id].area}));
+  const T = R.tp;
+  if(T.on && !R.chloride){
+    if(T.zz) rows.push({art:"北市辦法 §3",title:"整建住宅更新單元",choice:"逕依自治獎勵上限",pct:20,area:T.area});
+    else {
+      for(const r of TP_RULES){ const it = T.items[r.id]; if(it.area>0) rows.push({art:r.art,title:r.title,choice:it.choice,pct:it.pct,area:it.area}); }
+      if(T.strategic && T.raw>0) rows.push({art:"北市辦法 §4",title:"策略性更新地區二倍核給",choice:"臺北市獎勵 × 2",pct:R.B?T.raw/2/R.B*100:0,area:T.raw/2});
+      if(T.capped) rows.push({art:"條例 §65-6",title:"臺北市自治獎勵超過上限扣減",choice:`上限 ${T.strategic?40:20}%`,pct:-(T.raw-T.cap)/R.B*100,area:-(T.raw-T.cap)});
+    }
+  }
+  return rows;
 }
+function lawLine(){ return S.juris==="taipei" ? `${LAW.name}（${LAW.versionLabel}）、${TP_LAW.name}（${TP_LAW.versionLabel}）` : `${LAW.name}（${LAW.versionLabel}）`; }
 function renderBreakdown(){
   const rows = breakdownRows();
   $("bdNote").textContent = `基準容積 ${R.B? f2(R.B):"–"} ㎡｜上限依據：${R.capLabel}`;
@@ -526,7 +683,13 @@ const fname = ext => `${(S.project.name||"都更案").replace(/[\\/:*?"<>|\s]+/g
 function buildJSON(){
   return JSON.stringify({
     schema:SCHEMA, exportedAt:new Date().toISOString(),
-    law:{name:LAW.name,version:LAW.version,act:LAW.act,actVersion:LAW.actVersion,source:LAW.src},
+    jurisdiction:S.juris,
+    law:{name:LAW.name,version:LAW.version,act:LAW.act,actVersion:LAW.actVersion,source:LAW.src,
+      local: S.juris==="taipei" ? {name:TP_LAW.name,version:TP_LAW.version} : null},
+    localItems: S.juris==="taipei" ? TP_RULES.map(r=>({id:r.id,article:r.art,title:r.title,applied:R.tp.items[r.id].area>0,
+      choice:R.tp.items[r.id].choice||null,pct:+R.tp.items[r.id].pct.toFixed(4),area_m2:+R.tp.items[r.id].area.toFixed(2)})) : [],
+    localSummary: S.juris==="taipei" ? {rawArea_m2:+R.tp.raw.toFixed(2),cap_m2:+R.tp.cap.toFixed(2),appliedArea_m2:+R.tp.area.toFixed(2),
+      capped:R.tp.capped,strategicDouble:R.tp.strategic,zhengzhai:R.tp.zz} : null,
     project:{name:S.project.name,landArea_m2:n(S.project.landArea),far_pct:n(S.project.far),baseFloorArea_m2:+R.B.toFixed(2),
       originalFloorArea_m2:n(S.project.orig)||null,renewalZone:S.project.zone,reportDate:S.project.reportDate||null,landValue_twd_per_m2:n(S.project.landValue)||null,capMode:S.project.capMode},
     items:RULES.map(r=>({id:r.id,article:r.art,title:r.title,applied:R.items[r.id].pct>0,choice:R.items[r.id].choice||null,
@@ -540,11 +703,18 @@ function buildJSON(){
 function buildCSV(){
   const q = v => { const s = String(v ?? ""); return /[",\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s; };
   const L = [];
-  L.push(["案名",S.project.name]); L.push(["法源",`${LAW.name}（${LAW.versionLabel}）；${LAW.act}`]);
+  L.push(["案名",S.project.name]); L.push(["法源",`${lawLine()}；${LAW.act}`]);
   L.push(["土地面積(㎡)",n(S.project.landArea)]); L.push(["法定容積率(%)",n(S.project.far)]); L.push(["基準容積(㎡)",R.B.toFixed(2)]);
   L.push([]);
   L.push(["代號","條次","項目","申請內容","獎勵(%)","獎勵面積(㎡)","符號"]);
   RULES.forEach((r,i)=>{ const it = R.items[r.id]; L.push([r.id,r.art,r.title,it.choice||"未申請",it.pct.toFixed(2),it.area.toFixed(2),`△F${i+1}`]); });
+  if(S.juris==="taipei"){
+    L.push(["","","中央小計","",R.centralPct.toFixed(2),R.centralArea.toFixed(2),""]);
+    if(R.tp.zz) L.push(["zz","北市辦法 §3","整建住宅更新單元","逕依自治獎勵上限","20.00",R.tp.area.toFixed(2),"△FT"]);
+    else TP_RULES.forEach((r,i)=>{ const it = R.tp.items[r.id]; L.push([r.id,r.art,r.title,it.choice||"未申請",it.pct.toFixed(2),it.area.toFixed(2),`△FT${i+1}`]); });
+    if(R.tp.strategic) L.push(["","北市辦法 §4","策略性更新地區二倍核給","","",(R.tp.raw/2).toFixed(2),""]);
+    L.push(["","條例 §65-6","臺北市自治獎勵核計",R.tp.capped?"已達上限":"",R.B?(R.tp.area/R.B*100).toFixed(2):"",R.tp.area.toFixed(2),"ΣΔFT"]);
+  }
   L.push([]);
   L.push(["","","獎勵合計","",R.sumPct.toFixed(2),R.sumArea.toFixed(2),"ΣΔF"]);
   L.push(["","","獎勵上限",R.capLabel,R.chloride?"":R.capPct.toFixed(2),R.capBonusArea.toFixed(2),""]);
@@ -558,7 +728,7 @@ function a4Inner(){
   return `
   <div class="a4">
     <div class="a4-h"><div><div class="a4-k">都市更新容積獎勵初步評估</div><div class="a4-t">${esc(S.project.name||"未命名案件")}</div></div>
-      <div class="a4-d">評估日期 ${today}<br>法源 ${LAW.name}<br>${LAW.versionLabel}</div></div>
+      <div class="a4-d">評估日期 ${today}<br>${LAW.name}（${LAW.version}）${S.juris==="taipei"?`<br>${TP_LAW.name}（${TP_LAW.version}）`:""}</div></div>
     <table class="a4-base"><tr>
       <td><span>土地面積</span><b>${f2(R.A)} ㎡</b><i>${f2(R.A*PING)} 坪</i></td>
       <td><span>法定容積率</span><b>${n(S.project.far)}%</b><i>&nbsp;</i></td>
@@ -618,7 +788,7 @@ async function buildPNG(){
 }
 function summaryText(){
   const rows = breakdownRows();
-  return [`【${S.project.name||"都更案"}】容積獎勵初評（${LAW.name} ${LAW.versionLabel}）`,
+  return [`【${S.project.name||"都更案"}】容積獎勵初評（${lawLine()}）`,
     `土地 ${f2(R.A)}㎡｜容積率 ${n(S.project.far)}%｜基準容積 ${f2(R.B)}㎡`,
     ...rows.map(x=>`・${x.art} ${x.title}（${x.choice}）${fp(x.pct)}｜${f2(x.area)}㎡`),
     `獎勵合計 ${fp(R.sumPct)}（${f2(R.sumArea)}㎡），上限 ${R.chloride?"不適用":fp(R.capPct)}`,
@@ -633,7 +803,7 @@ $("bPng").onclick = async () => { if(!downloads && !standalone){ toast("此檢�
 $("bCopy").onclick = async () => { const t = summaryText();
   try{ await navigator.clipboard.writeText(t); toast("已複製摘要"); }
   catch(e){ const ta = document.createElement("textarea"); ta.value=t; ta.style.cssText="position:fixed;left:16px;right:16px;top:20%;height:40%;z-index:40"; document.body.appendChild(ta); ta.select(); toast("請按 Ctrl/⌘＋C 複製，點其他地方關閉"); ta.addEventListener("blur",()=>ta.remove()); ta.focus(); } };
-$("bReset").onclick = () => { S = blankState(); syncInputs(); update(); toast("已清空，可開始填寫新案件"); };
+$("bReset").onclick = () => { const j = S.juris; S = blankState(); S.juris = j; syncInputs(); update(); toast("已清空，可開始填寫新案件"); };
 $("fImport").onchange = e => {
   const file = e.target.files[0]; if(!file) return;
   const rd = new FileReader();
@@ -645,7 +815,10 @@ $("fImport").onchange = e => {
   rd.readAsText(file);
 };
 
-renderCaps(); renderRows(); bindProject(); syncInputs(); update();
+renderCaps(); renderRows(); renderTP(); bindProject();
+$("juris").addEventListener("change", e=>{ setJuris(e.target.value); update(); });
+if(location.hash==="#taipei") S.juris = "taipei"; else if(location.hash==="#central") S.juris = "central";
+syncInputs(); update();
 })();
 </script>
 
