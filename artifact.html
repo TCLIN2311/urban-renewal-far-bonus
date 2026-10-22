@@ -149,6 +149,7 @@ body:not(.is-tp) .tp-only{display:none!important}
     <input type="file" id="fImport" accept=".json,application/json" hidden>
     <button class="ghost" id="bCopy">複製摘要</button>
     <button class="ghost" id="bReset">清空重填</button>
+    <button class="ghost" id="bSample">載入範例</button>
   </div>
 
   <section class="panel">
@@ -322,7 +323,8 @@ function sampleState(){
   return s;
 }
 let S;
-try{ const raw = localStorage.getItem("frb-draft"); S = raw ? JSON.parse(raw) : sampleState(); }catch(e){ S = sampleState(); }
+try{ const raw = localStorage.getItem("frb-draft"); S = raw ? JSON.parse(raw) : null; }catch(e){ S = null; }
+if(!S || S.sample) S = blankState();   // 預設空白；舊版自動存下的範例草稿一併捨棄
 S = mergeState(S);
 function mergeState(x){ const b = blankState(); const out = {...b, ...x, project:{...b.project,...(x.project||{})}, sel:{...b.sel}};
   for(const k in b.sel){ const v = x.sel ? x.sel[k] : undefined; if(v===undefined) continue;
@@ -796,6 +798,7 @@ $("bCopy").onclick = async () => { const t = summaryText();
   try{ await navigator.clipboard.writeText(t); toast("已複製摘要"); }
   catch(e){ const ta = document.createElement("textarea"); ta.value=t; ta.style.cssText="position:fixed;left:16px;right:16px;top:20%;height:40%;z-index:40"; document.body.appendChild(ta); ta.select(); toast("請按 Ctrl/⌘＋C 複製，點其他地方關閉"); ta.addEventListener("blur",()=>ta.remove()); ta.focus(); } };
 $("bReset").onclick = () => { const j = S.juris; S = blankState(); S.juris = j; syncInputs(); update(); toast("已清空，可開始填寫新案件"); };
+$("bSample").onclick = () => { const j = S.juris; S = sampleState(); S.juris = j; syncInputs(); update(); toast("已載入範例案件"); };
 $("fImport").onchange = e => {
   const file = e.target.files[0]; if(!file) return;
   const rd = new FileReader();
